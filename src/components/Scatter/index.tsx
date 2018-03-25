@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { data, Entry } from '../../data/data'
-import * as Plotly from 'plotly.js'
+import * as PlotlyObj from 'plotly.js'
+
+declare global {
+  const Plotly: typeof PlotlyObj
+}
 
 import './Scatter.css'
 

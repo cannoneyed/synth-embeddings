@@ -19,3 +19,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+python/sylenth_patches
+python/output
+python/output.zip
