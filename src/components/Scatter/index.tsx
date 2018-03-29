@@ -2,6 +2,8 @@ import * as React from 'react'
 import { data, Entry } from '../../data/data'
 import * as PlotlyObj from 'plotly.js'
 
+const AMAZON_PREFIX = 'https://s3-us-west-2.amazonaws.com/synth-embeddings-samples/'
+
 declare global {
   const Plotly: typeof PlotlyObj
 }
@@ -33,7 +35,7 @@ class Scatter extends React.Component<{}, ComponentState> {
       x: data.data.map((x) => x.proj[0]),
       y: data.data.map((x) => x.proj[1]),
       z: data.data.map((x) => x.proj[2]),
-      text: data.data.map((x) => x.filename),
+      text: data.data.map((x) => x.displayName),
       hoverinfo: 'text' as 'text',
       mode: 'markers' as 'markers',
       hovermode: 'closest' as 'closest',
@@ -74,21 +76,23 @@ class Scatter extends React.Component<{}, ComponentState> {
     })
   }
 
-  renderSample(filename: string, index?: number, distance?: number) {
+  renderSample(displayName: string, filename: string, index?: number, distance?: number) {
     const setRef = (ref: HTMLAudioElement) => {
       if (distance === undefined) this.audio = ref!
     }
 
-    let displayName = filename
     if (distance) {
       displayName += ` (${distance.toFixed(1)})`
     }
+
+    const processedFilename = filename.replace('samples/', '')
+    const soundUrl = `${AMAZON_PREFIX}${processedFilename}`
 
     return (
       <div className="sample" key={filename}>
         <h5>{displayName || 'no sample selected'}</h5>
         <audio ref={setRef} controls controlsList="nodownload">
-          {filename && <source src={filename} type="audio/wav" />}
+          {filename && <source src={soundUrl} type="audio/mp3" />}
         </audio>
       </div>
     )
@@ -112,7 +116,7 @@ class Scatter extends React.Component<{}, ComponentState> {
         <h5>closest</h5>
         {closest.slice(1, 5).map((entry) => {
           const distance = getDistance(entry)
-          return this.renderSample(entry.filename, entry.index, distance)
+          return this.renderSample(entry.displayName, entry.filename, entry.index, distance)
         })}
       </div>
     )
@@ -120,12 +124,14 @@ class Scatter extends React.Component<{}, ComponentState> {
 
   render() {
     const { selectedIndex } = this.state
-    const filename = selectedIndex !== undefined ? data.data[selectedIndex].filename : ''
+    const selectedEntry =
+      selectedIndex !== undefined ? data.data[selectedIndex] : { displayName: '', filename: '' }
+    const { filename, displayName } = selectedEntry
 
     return (
       <div>
         <div id="scatter" />
-        {this.renderSample(filename, selectedIndex)}
+        {this.renderSample(displayName, filename, selectedIndex)}
         {selectedIndex !== undefined && this.renderClosest(selectedIndex)}
       </div>
     )

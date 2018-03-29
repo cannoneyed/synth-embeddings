@@ -8,7 +8,6 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <h1>Embeddings</h1>
         <Scatter />
       </div>
     )
